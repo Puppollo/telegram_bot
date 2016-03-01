@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -58,4 +57,12 @@ func (b *Bot) getUpdate(request GetUpdateRequest) ([]Update, error) {
 	}
 
 	return updateResult.Result, nil
+}
+
+func (b *Bot) sendMessage(request SendMessageRequest) ([]byte, error) {
+	raw, err := b.request(METHOD_SENDMESSAGE, request.String())
+	if err != nil {
+		return nil, err
+	}
+	return raw, nil
 }

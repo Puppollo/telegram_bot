@@ -17,6 +17,7 @@ const (
 
 	METHOD_GETME      = "getMe"
 	METHOD_GETUPDATES = "getUpdates"
+	METHOD_SENDMESSAGE = "sendMessage"
 )
 
 type (
@@ -94,6 +95,7 @@ func (b *Bot) handle() {
 		for _, update := range updates {
 			b.resultCounter = update.Id
 			println(update.Message.Text)
+			b.sendMessage(SendMessageRequest{Id:update.Message.Chat.Id, Text:update.Message.Text+" from bot echoing"})
 		}
 		time.Sleep(b.Timeout)
 	}

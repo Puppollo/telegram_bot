@@ -44,18 +44,32 @@ type (
 		Limit   int `json:"limit"`   // Limits the number of updates to be retrieved. Values between 1—100 are accepted. Defaults to 100.
 		Timeout int `json:"timeout"` // Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling
 	}
+
+	SendMessageRequest struct {
+		Id	int `json:"chat_id"` //Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+		Text	string	`json:"text"`//Text of the message to be sent
+		ReplyId	int	`json:"reply_to_message_id,omitempty"`//If the message is a reply, ID of the original message
+	}
 )
 
-func (u *UpdateResult) String() string {
-	raw, err := json.Marshal(u)
+func (r *SendMessageRequest) String() string {
+	raw, err := json.Marshal(r)
 	if err != nil {
 		return ""
 	}
 	return string(raw)
 }
 
-func (u *GetUpdateRequest) String() string {
-	raw, err := json.Marshal(u)
+func (r *UpdateResult) String() string {
+	raw, err := json.Marshal(r)
+	if err != nil {
+		return ""
+	}
+	return string(raw)
+}
+
+func (r *GetUpdateRequest) String() string {
+	raw, err := json.Marshal(r)
 	if err != nil {
 		return ""
 	}
