@@ -1,10 +1,12 @@
 package bot
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type (
 	UpdateResult struct {
-		Ok     bool	`json:"ok"`
+		Ok     bool     `json:"ok"`
 		Result []Update `json:"result"`
 	}
 
@@ -36,9 +38,23 @@ type (
 		LastName  string `json:"last_name"`  //Optional. User‘s or bot’s last name
 		Username  string `json:"username"`   //Optional. User‘s or bot’s username
 	}
+
+	GetUpdateRequest struct {
+		Offset  int `json:"offset"`  // Identifier of the first update to be returned. Must be greater by one than the highest among the identifiers of previously received updates. By default, updates starting with the earliest unconfirmed update are returned. An update is considered confirmed as soon as getUpdates is called with an offset higher than its update_id. The negative offset can be specified to retrieve updates starting from -offset update from the end of the updates queue. All previous updates will forgotten.
+		Limit   int `json:"limit"`   // Limits the number of updates to be retrieved. Values between 1—100 are accepted. Defaults to 100.
+		Timeout int `json:"timeout"` // Timeout in seconds for long polling. Defaults to 0, i.e. usual short polling
+	}
 )
 
 func (u *UpdateResult) String() string {
+	raw, err := json.Marshal(u)
+	if err != nil {
+		return ""
+	}
+	return string(raw)
+}
+
+func (u *GetUpdateRequest) String() string {
 	raw, err := json.Marshal(u)
 	if err != nil {
 		return ""

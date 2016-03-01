@@ -27,7 +27,7 @@ type (
 
 	Bot struct {
 		BotConfig
-		client *http.Client
+		client        *http.Client
 		resultCounter int
 	}
 )
@@ -60,7 +60,7 @@ func NewBot(config *BotConfig) *Bot {
 		MaxIdleConnsPerHost: 1,
 	}
 
-	bot := &Bot{BotConfig: *config, resultCounter:0}
+	bot := &Bot{BotConfig: *config, resultCounter: 0}
 	bot.client = &http.Client{Transport: &transport}
 	return bot
 }
@@ -85,8 +85,16 @@ func (b *Bot) Run() {
 
 func (b *Bot) handle() {
 	for {
-		updates, err := b.getUpdate()
-		log.Println(err, updates)
+		println(b.resultCounter)
+		updates, err := b.getUpdate(GetUpdateRequest{Offset: b.resultCounter + 1, Limit: 1})
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		for _, update := range updates {
+			b.resultCounter = update.Id
+			println(update.Message.Text)
+		}
 		time.Sleep(b.Timeout)
 	}
 }

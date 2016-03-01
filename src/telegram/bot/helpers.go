@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -19,10 +20,13 @@ func content(response *http.Response) ([]byte, error) {
 }
 
 func (b *Bot) request(method string, data string) ([]byte, error) {
-	request, err := http.NewRequest("POST", fmt.Sprintf(TELEGRAM_API_URL, b.Token, method), bytes.NewBuffer([]byte(data)))
+	request, err := http.NewRequest(http.MethodPost, fmt.Sprintf(TELEGRAM_API_URL, b.Token, method), bytes.NewBuffer([]byte(data)))
 	if err != nil {
 		return nil, err
 	}
+
+	request.Header.Set("Content-Type", "application/json")
+
 	response, err := b.client.Do(request)
 	if err != nil {
 		return nil, err
@@ -36,16 +40,16 @@ func (b *Bot) request(method string, data string) ([]byte, error) {
 	return content, nil
 }
 
-func (b *Bot) getUpdate() ([]Update, error) {
+func (b *Bot) getUpdate(request GetUpdateRequest) ([]Update, error) {
 	var updateResult UpdateResult
 
-	raw, err := b.request(METHOD_GETUPDATES, "")
+	raw, err := b.request(METHOD_GETUPDATES, request.String())
 	if err != nil {
 		return nil, err
 	}
 
 	err = json.Unmarshal(raw, &updateResult)
-	if err !=nil {
+	if err != nil {
 		return nil, err
 	}
 
