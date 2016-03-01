@@ -2,8 +2,10 @@ package bot
 
 import (
 	yaml "gopkg.in/yaml.v2"
+
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,7 +13,10 @@ import (
 )
 
 const (
-	METHOD_GETME = "getMe"
+	TELEGRAM_API_URL = "https://api.telegram.org/bot%s/%s"
+
+	METHOD_GETME      = "getMe"
+	METHOD_GETUPDATES = "getUpdates"
 )
 
 type (
@@ -22,6 +27,8 @@ type (
 
 	Bot struct {
 		BotConfig
+		client *http.Client
+		url    string
 	}
 )
 
@@ -44,9 +51,18 @@ func NewBotConfig(file string) (*BotConfig, error) {
 
 func NewBot(config *BotConfig) *Bot {
 	if config == nil {
-		return &Bot{BotConfig{Timeout: time.Second}}
+		config = &BotConfig{Timeout: time.Second}
 	}
-	return &Bot{BotConfig: *config}
+
+	transport := http.Transport{
+		DisableCompression:  true,
+		DisableKeepAlives:   false,
+		MaxIdleConnsPerHost: 1,
+	}
+
+	bot := &Bot{BotConfig: *config}
+	bot.client = &http.Client{Transport: &transport}
+	return bot
 }
 
 func (b *Bot) Run() {
@@ -69,7 +85,8 @@ func (b *Bot) Run() {
 
 func (b *Bot) handle() {
 	for {
+		updates, err := b.getUpdate()
+		log.Println(err, updates)
 		time.Sleep(b.Timeout)
-		print(".")
 	}
 }
