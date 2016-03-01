@@ -10,6 +10,10 @@ import (
 	"time"
 )
 
+const (
+	METHOD_GETME = "getMe"
+)
+
 type (
 	BotConfig struct {
 		Token   string        `yaml:"Token"`
