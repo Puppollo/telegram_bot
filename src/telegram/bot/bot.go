@@ -28,7 +28,7 @@ type (
 	Bot struct {
 		BotConfig
 		client *http.Client
-		url    string
+		resultCounter int
 	}
 )
 
@@ -60,7 +60,7 @@ func NewBot(config *BotConfig) *Bot {
 		MaxIdleConnsPerHost: 1,
 	}
 
-	bot := &Bot{BotConfig: *config}
+	bot := &Bot{BotConfig: *config, resultCounter:0}
 	bot.client = &http.Client{Transport: &transport}
 	return bot
 }

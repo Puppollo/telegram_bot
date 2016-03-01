@@ -18,9 +18,7 @@ func content(response *http.Response) ([]byte, error) {
 	return contents, nil
 }
 
-func (b *Bot) request(method string, data string) (*Result, error) {
-	var result Result
-
+func (b *Bot) request(method string, data string) ([]byte, error) {
 	request, err := http.NewRequest("POST", fmt.Sprintf(TELEGRAM_API_URL, b.Token, method), bytes.NewBuffer([]byte(data)))
 	if err != nil {
 		return nil, err
@@ -35,33 +33,25 @@ func (b *Bot) request(method string, data string) (*Result, error) {
 		return nil, err
 	}
 
-	err = json.Unmarshal(content, &result)
-	if err != nil {
-		return nil, err
-	}
-
-	return &result, nil
+	return content, nil
 }
 
-func (b *Bot) getUpdate() (Updates, error) {
-	result, err := b.request(METHOD_GETUPDATES, "")
+func (b *Bot) getUpdate() ([]Update, error) {
+	var updateResult UpdateResult
+
+	raw, err := b.request(METHOD_GETUPDATES, "")
 	if err != nil {
 		return nil, err
 	}
 
-	if !result.Ok {
+	err = json.Unmarshal(raw, &updateResult)
+	if err !=nil {
+		return nil, err
+	}
+
+	if !updateResult.Ok {
 		return nil, errors.New("error result.ok=false")
 	}
 
-	var updates Updates
-	raw, ok := result.Result.([]byte)
-	if !ok {
-		return nil, errors.New("cannot convert result.result to []byte")
-	}
-	err = json.Unmarshal(raw, &updates)
-	if err != nil {
-		return nil, err
-	}
-
-	return updates, nil
+	return updateResult.Result, nil
 }
