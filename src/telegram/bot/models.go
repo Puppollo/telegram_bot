@@ -46,9 +46,9 @@ type (
 	}
 
 	SendMessageRequest struct {
-		Id	int `json:"chat_id"` //Unique identifier for the target chat or username of the target channel (in the format @channelusername)
-		Text	string	`json:"text"`//Text of the message to be sent
-		ReplyId	int	`json:"reply_to_message_id,omitempty"`//If the message is a reply, ID of the original message
+		Id      int    `json:"chat_id"`                       //Unique identifier for the target chat or username of the target channel (in the format @channelusername)
+		Text    string `json:"text"`                          //Text of the message to be sent
+		ReplyId int    `json:"reply_to_message_id,omitempty"` //If the message is a reply, ID of the original message
 	}
 )
 

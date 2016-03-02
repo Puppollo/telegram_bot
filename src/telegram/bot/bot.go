@@ -15,22 +15,26 @@ import (
 const (
 	TELEGRAM_API_URL = "https://api.telegram.org/bot%s/%s"
 
-	METHOD_GETME      = "getMe"
-	METHOD_GETUPDATES = "getUpdates"
+	METHOD_GETME       = "getMe"
+	METHOD_GETUPDATES  = "getUpdates"
 	METHOD_SENDMESSAGE = "sendMessage"
 )
 
 type (
+	command func(*Bot, ...string) string
+
 	BotConfig struct {
-		Token   string        `yaml:"Token"`
-		Timeout time.Duration `yaml:"Timeout"`
-		Users []int	`yaml:"Users"`
+		Token    string        `yaml:"Token"`
+		Timeout  time.Duration `yaml:"Timeout"`
+		Users    []int         `yaml:"Users"`
+		Commands string        `yaml:"Commands"`
 	}
 
 	Bot struct {
 		BotConfig
 		client        *http.Client
 		resultCounter int
+		commands      map[string]command
 	}
 )
 
@@ -62,7 +66,7 @@ func NewBot(config *BotConfig) *Bot {
 		MaxIdleConnsPerHost: 1,
 	}
 
-	bot := &Bot{BotConfig: *config, resultCounter: 0}
+	bot := &Bot{BotConfig: *config, resultCounter: 0, commands: commands}
 	bot.client = &http.Client{Transport: &transport}
 	return bot
 }
@@ -95,8 +99,8 @@ func (b *Bot) handle() {
 		}
 		for _, update := range updates {
 			b.resultCounter = update.Id
-			println(update.Message.From.Id,":",update.Message.Text)
-			if !b.validUser(update.Message.From.Id){
+			println(update.Message.From.Id, ":", update.Message.Text)
+			if !b.validUser(update.Message.From.Id) {
 				continue
 			}
 			response := b.handleCommand(&update)
