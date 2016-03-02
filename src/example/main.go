@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bot"
 	"flag"
 	"log"
-	"telegram/bot"
 )
 
 func main() {
