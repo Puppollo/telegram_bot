@@ -54,7 +54,7 @@ func list(b *Bot, cmd ...string) string {
 		if file == "." || file == ".." {
 			continue
 		}
-		res += file + "\n"
+		res += filepath.Base(file) + "\n"
 	}
 	return res
 }
