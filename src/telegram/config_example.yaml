@@ -1,4 +1,4 @@
-Token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11g"
-Timeout: 5
-Users: [123456789]
-Commands: "/home/user/bot/commands"
+Token: "123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11g"     # your bot api token
+Timeout: 5                                              # timeout between request
+Users: [123456789]                                      # allowed users ids
+Commands: "/home/user/bot/commands"                     # commands directory
