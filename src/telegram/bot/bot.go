@@ -24,6 +24,7 @@ type (
 	BotConfig struct {
 		Token   string        `yaml:"Token"`
 		Timeout time.Duration `yaml:"Timeout"`
+		Users []int	`yaml:"Users"`
 	}
 
 	Bot struct {
@@ -87,15 +88,19 @@ func (b *Bot) Run() {
 func (b *Bot) handle() {
 	for {
 		println(b.resultCounter)
-		updates, err := b.getUpdate(GetUpdateRequest{Offset: b.resultCounter + 1, Limit: 1})
+		updates, err := b.getUpdate(GetUpdateRequest{Offset: b.resultCounter + 1, Limit: 1, Timeout: 60})
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 		for _, update := range updates {
 			b.resultCounter = update.Id
-			println(update.Message.Text)
-			b.sendMessage(SendMessageRequest{Id:update.Message.Chat.Id, Text:update.Message.Text+" from bot echoing"})
+			println(update.Message.From.Id,":",update.Message.Text)
+			if !b.validUser(update.Message.From.Id){
+				continue
+			}
+			response := b.handleCommand(&update)
+			b.sendMessage(response)
 		}
 		time.Sleep(b.Timeout)
 	}

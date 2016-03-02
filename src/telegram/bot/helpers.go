@@ -2,12 +2,11 @@ package bot
 
 import (
 	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os/exec"
 )
 
 func content(response *http.Response) ([]byte, error) {
@@ -39,30 +38,24 @@ func (b *Bot) request(method string, data string) ([]byte, error) {
 	return content, nil
 }
 
-func (b *Bot) getUpdate(request GetUpdateRequest) ([]Update, error) {
-	var updateResult UpdateResult
-
-	raw, err := b.request(METHOD_GETUPDATES, request.String())
-	if err != nil {
-		return nil, err
+// check if user in list
+func (b *Bot) validUser(id int) bool {
+	for _, userId := range b.Users {
+		if userId == id {
+			return true
+		}
 	}
-
-	err = json.Unmarshal(raw, &updateResult)
-	if err != nil {
-		return nil, err
-	}
-
-	if !updateResult.Ok {
-		return nil, errors.New("error result.ok=false")
-	}
-
-	return updateResult.Result, nil
+	return false
 }
 
-func (b *Bot) sendMessage(request SendMessageRequest) ([]byte, error) {
-	raw, err := b.request(METHOD_SENDMESSAGE, request.String())
+// run shell command cmd[0] - command, cmd[1:n] - arguments
+func Run(cmd ...string) (string, error) {
+	command := cmd[0]
+	arguments := cmd[1:]
+
+	out, err := exec.Command(command, arguments...).Output()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	return raw, nil
+	return string(out[:]), nil
 }
