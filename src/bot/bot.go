@@ -21,20 +21,25 @@ const (
 )
 
 type (
-	command func(*Bot, ...string) string
+	Command interface {
+		Help() string
+		Run(*Bot, ...string) string
+	}
+
+	Commands map[string]Command
 
 	BotConfig struct {
-		Token    string        `yaml:"Token"`
-		Timeout  time.Duration `yaml:"Timeout"`
-		Users    []int         `yaml:"Users"`
-		Commands string        `yaml:"Commands"`
+		Token       string        `yaml:"Token"`
+		Timeout     time.Duration `yaml:"Timeout"`
+		Users       []int         `yaml:"Users"`
+		Executables string        `yaml:"Executables"`
 	}
 
 	Bot struct {
 		BotConfig
 		client        *http.Client
 		resultCounter int
-		commands      map[string]command
+		Commands      Commands
 	}
 )
 
@@ -55,7 +60,7 @@ func NewBotConfig(file string) (*BotConfig, error) {
 	return &botConfig, nil
 }
 
-func NewBot(config *BotConfig) *Bot {
+func NewBot(config *BotConfig, commands Commands) *Bot {
 	if config == nil {
 		config = &BotConfig{Timeout: time.Second}
 	}
@@ -66,7 +71,7 @@ func NewBot(config *BotConfig) *Bot {
 		MaxIdleConnsPerHost: 1,
 	}
 
-	bot := &Bot{BotConfig: *config, resultCounter: 0, commands: commands}
+	bot := &Bot{BotConfig: *config, resultCounter: 0, Commands: commands}
 	bot.client = &http.Client{Transport: &transport}
 	return bot
 }

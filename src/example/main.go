@@ -2,6 +2,7 @@ package main
 
 import (
 	"bot"
+	"bot/commands"
 	"flag"
 	"log"
 )
@@ -15,6 +16,12 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	bot := bot.NewBot(botConfig)
+	bot := bot.NewBot(botConfig, bot.Commands{
+		"help": commands.Help{},
+		"list": commands.List{},
+		"run":  commands.Run{},
+		"info": commands.Info{},
+	})
+
 	bot.Run()
 }

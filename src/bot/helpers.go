@@ -21,7 +21,7 @@ func content(response *http.Response) ([]byte, error) {
 	return contents, nil
 }
 
-func (b *Bot) request(method string, data string) ([]byte, error) {
+func (b *Bot) Request(method string, data string) ([]byte, error) {
 	request, err := http.NewRequest(http.MethodPost, fmt.Sprintf(TELEGRAM_API_URL, b.Token, method), bytes.NewBuffer([]byte(data)))
 	if err != nil {
 		return nil, err
@@ -52,13 +52,13 @@ func (b *Bot) validUser(id int) bool {
 	return false
 }
 
-func (b *Bot) run(cmd ...string) (string, error) {
+func (b *Bot) Execute(cmd ...string) (string, error) {
 
 	if len(cmd) == 0 {
 		return "", errors.New("no command")
 	}
 
-	command := fmt.Sprint(b.Commands, "/", cmd[0])
+	command := fmt.Sprint(b.Executables, "/", cmd[0])
 	arguments := cmd[1:]
 
 	if _, err := os.Stat(command); err != nil {
@@ -77,11 +77,11 @@ func (b *Bot) handleCommand(update *Update) *SendMessageRequest {
 		return nil
 	}
 
-	command := strings.Fields(update.Message.Text)
+	cmd := strings.Fields(update.Message.Text)
 	response := SendMessageRequest{Id: update.Message.Chat.Id, Text: "undefined command"}
 
-	if output, ok := b.commands[command[0]]; ok {
-		response.Text = output(b, command[1:]...)
+	if command, ok := b.Commands[cmd[0]]; ok {
+		response.Text = command.Run(b, cmd[1:]...)
 	}
 
 	return &response
@@ -90,7 +90,7 @@ func (b *Bot) handleCommand(update *Update) *SendMessageRequest {
 func (b *Bot) getUpdate(request GetUpdateRequest) ([]Update, error) {
 	var updateResult UpdateResult
 
-	raw, err := b.request(METHOD_GETUPDATES, request.String())
+	raw, err := b.Request(METHOD_GETUPDATES, request.String())
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (b *Bot) sendMessage(request *SendMessageRequest) ([]byte, error) {
 	if request == nil {
 		return nil, nil
 	}
-	raw, err := b.request(METHOD_SENDMESSAGE, request.String())
+	raw, err := b.Request(METHOD_SENDMESSAGE, request.String())
 	if err != nil {
 		return nil, err
 	}
